@@ -21,10 +21,10 @@ namespace ft
     my_iterator() : m_ptr(nullptr) {}
     explicit my_iterator(iterator_type pt) : m_ptr(pt) {}
     template <class iter>
-    my_iterator(const my_iterator<iter>& itr) : m_ptr(itr.m_ptr) {}
+    my_iterator(const my_iterator<iter>& itr) : m_ptr(itr.base()) {}
     template <class iter>
     my_iterator operator=(const my_iterator<iter>& it) {m_ptr = it.base(); return *this;}
-    iterator_type base() const { return m_ptr;} 
+    iterator_type base() const { return m_ptr;}
     reference operator*() { return *m_ptr;}
     my_iterator operator+(difference_type n) const {return my_iterator(m_ptr + n);}
     my_iterator operator-(difference_type n) const {return my_iterator(m_ptr - n);}
@@ -106,10 +106,9 @@ namespace ft
                                 , const my_iterator<iter> &lhs)
   {
     return (my_iterator<iter>(lhs.base()+ n)); 
-  }
+  } 
   template<class iter>
-  typename my_iterator<iter>::difference_type operator-(const my_iterator<iter>& rhs, 
-                                                          const my_iterator<iter>& lhs)
+  typename my_iterator<iter>::difference_type operator-(const my_iterator<iter>& rhs, const my_iterator<iter>& lhs)
   {
     return (rhs.base() - lhs.base()); 
   }
