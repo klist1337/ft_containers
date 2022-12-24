@@ -46,13 +46,14 @@ namespace ft
     explicit vector(size_type n, const value_type& val = value_type(),
                     const allocator_type& alloc = allocator_type())
     {
+      //this->clear();
       _size = n;
       _capacity = n;
       _alloc = alloc;
       _arr = _alloc.allocate(_capacity);
       while (n-- >= 0)
       {
-        _arr[n] = val;
+        _alloc.construct(_arr + n, val);
         if (!n)
           break;
       }
@@ -63,6 +64,7 @@ namespace ft
             , typename ft::enable_if<!ft::is_integral<InputIterator>::value,
               InputIterator>::type = InputIterator())
     {
+
       _alloc = alloc;
       size_type i = -1;
       _capacity = last - first;
@@ -70,7 +72,8 @@ namespace ft
       _arr = _alloc.allocate(_capacity);
       while (++i < _capacity)
       {
-        _arr[i] = *first;
+        //_arr[i] = *first;
+        _alloc.construct(_arr + i, *first);
         first++;
       }
     }
@@ -81,18 +84,21 @@ namespace ft
     // assignement operator
     vector& operator=(const vector &x)
     {
-      size_type i = -1;
+      // size_type i = -1;
       if (this == &x)
         return (*this);
-      if (_capacity)
-        _alloc.deallocate(_arr, _capacity);
-      _alloc = x._alloc;
-      _capacity = x._capacity;
-      _size = x._size;
-      _arr = _alloc.allocate(_capacity);
-      //_end = _arr;
-      while (++i < _capacity)
-        _arr[i] = x._arr[i];
+      this->clear();
+      this->insert(this->begin(), x.begin(), x.end());
+      // if (_capacity)
+      //   _alloc.deallocate(_arr, _capacity);
+      // _alloc = x._alloc;
+      // _capacity = (x._capacity > _capacity) ? x._capacity : _capacity;
+      // _size = x.size();
+      // _arr = _alloc.allocate(_capacity);
+      // //_end = _arr;
+      // while (++i < _size)
+      //   //_arr[i] = x._arr[i];
+      //  _alloc.construct(_arr + i, x._arr[i]);
       return (*this);
     }
     ~vector() 
@@ -312,15 +318,21 @@ namespace ft
         _capacity = (_capacity * 2 > _size + n) ? (_capacity * 2) : (_size + n);
         _arr = _alloc.allocate(_capacity);
         for (size_type i = 0; i < _size; i++)
-          _arr[i] = tmp[i];
+          _alloc.construct(_arr + i, tmp[i]);
+          //arr[i] = tmp[i];
         _alloc.deallocate(tmp ,old_cap);
       }
       size_type it = _size - pos;
       _size = new_size;
       while (it-- > 0 && pos > 0 && new_size--)
-        _arr[new_size] = _arr[new_size - n];
+        _alloc.construct(_arr + new_size, _arr[new_size - n]);
+        //_arr[new_size] = _arr[new_size - n];
       while (n--)
-      _arr[pos++] = *(first++);
+      {
+        _alloc.construct(_arr + pos, *(first++));
+        pos++;
+      }
+      //_arr[pos++] = *(first++);
     }
     size_type max_size() const 
     {
@@ -350,7 +362,7 @@ namespace ft
       }
       if (new_size <= _capacity)
       {
-	  _alloc.construct(_arr + new_size - 1, x);
+	      _alloc.construct(_arr + new_size - 1, x);
         //_arr[new_size - 1] = x;
         _size = new_size;
       }
@@ -360,10 +372,10 @@ namespace ft
         _capacity *= 2;
         _arr = _alloc.allocate(_capacity);
         while (++i < _size)
-	  _alloc.construct(_arr + i, tmp[i]);
+	        _alloc.construct(_arr + i, tmp[i]);
           //_arr[i] = tmp[i];
         _alloc.deallocate(tmp, old_cap);
-	_alloc.construct(_arr + new_size - 1, x);
+	      _alloc.construct(_arr + new_size - 1, x);
         //_arr[new_size - 1] = x;
         _size = new_size;
       }
