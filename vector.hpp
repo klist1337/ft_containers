@@ -149,14 +149,17 @@ namespace ft
       size_type size;
       size = last - first;
       _end = _arr;
+      this->clear();
       if (size <= _capacity)
       {
         while (++i < size)
-          _arr[i] = *(first++);
+          _alloc.construct(_end++, *(first++));
+          //_arr[i] = *(first++);
         _size = size;
       }
       else
       {
+      	this->clear();
         if (_capacity)
           _alloc.deallocate(_arr, _capacity);
         _capacity = size;
@@ -172,10 +175,12 @@ namespace ft
       size_type i = -1;
       size_type size = n;
       _end = _arr;
+      this->clear();
       if (n <= _capacity)
       {
         while (++i < n)
-          _arr[i] = val;
+          _alloc.construct(_end++, val);
+          //_arr[i] = val;
         _size = n;
       }
       else
@@ -209,7 +214,7 @@ namespace ft
     void clear()
     {
       size_type i = -1;
-      while (++i < _capacity)
+      while (++i < _size)
         _alloc.destroy(&_arr[i]);
       _size = 0;
     }
@@ -345,7 +350,8 @@ namespace ft
       }
       if (new_size <= _capacity)
       {
-        _arr[new_size - 1] = x;
+	  _alloc.construct(_arr + new_size - 1, x);
+        //_arr[new_size - 1] = x;
         _size = new_size;
       }
       else if (new_size > _capacity && _capacity > 0)
@@ -354,9 +360,11 @@ namespace ft
         _capacity *= 2;
         _arr = _alloc.allocate(_capacity);
         while (++i < _size)
-          _arr[i] = tmp[i];
+	  _alloc.construct(_arr + i, tmp[i]);
+          //_arr[i] = tmp[i];
         _alloc.deallocate(tmp, old_cap);
-        _arr[new_size - 1] = x;
+	_alloc.construct(_arr + new_size - 1, x);
+        //_arr[new_size - 1] = x;
         _size = new_size;
       }
     }
