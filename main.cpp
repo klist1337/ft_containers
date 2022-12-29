@@ -3,6 +3,7 @@
 #include <vector>
 #include "vector.hpp"
 #include <map>
+#include "pair.hpp"
 
 void print_container(ft::vector<int>& c)
 {
@@ -122,27 +123,28 @@ void print_container(std::vector<int>& c)
   };
 int main()
 {
-  ft::vector<char> v;
-  ft::vector<char> b(6, 'b');
+  // ft::vector<char> v;
+  // ft::vector<char> b(6, 'b');
 
-  // v.assign(0, 'c');
+  // // v.assign(0, 'c');
+  // // std::cout << v.capacity() << std::endl;
+  // // std::cout << v.size() << std::endl;
+  // // print_container(v);
+
+  // // v.assign(64, 'A');
+  // // std::cout << v.capacity() << std::endl;
+  // // std::cout << v.size() << std::endl;
+  // // print_container(v);
+  // v.assign(b.begin(), b.end());
   // std::cout << v.capacity() << std::endl;
   // std::cout << v.size() << std::endl;
   // print_container(v);
-
-  // v.assign(64, 'A');
-  // std::cout << v.capacity() << std::endl;
-  // std::cout << v.size() << std::endl;
-  // print_container(v);
-  v.assign(b.begin(), b.end());
-  std::cout << v.capacity() << std::endl;
-  std::cout << v.size() << std::endl;
-  print_container(v);
   // ft::vector<std::string>::iterator it;
   // v.reserve(100);
   // v.insert(v.begin() + 15, 70,  "hello");
 
-  
+  ft::pair<int, std::string> P(2, "geeks");
+  std::cout << P.first;
   // std::cout << v.capacity() << std::endl;
   // std::cout << v.size() << std::endl;
   // print_container(v);
