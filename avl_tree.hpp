@@ -6,16 +6,16 @@ namespace ft
   struct Node
   {
     T value;
-    Node *head;
+    Node *parent;
     Node *left;
     Node *right;
     int   balance_factor;
     int   height;
-    Node() : head(nullptr), left(nullptr), right(nullptr)
+    Node() : parent(nullptr), left(nullptr), right(nullptr)
     {} 
     Node(const T& value) : value(value)
     {}
-    Node(const T& value, const int& height) : value(value), head(nullptr), left(nullptr), right(nullptr), balance_factor(0)
+    Node(const T& value, const int& height) : value(value), parent(nullptr), left(nullptr), right(nullptr), balance_factor(0)
     , height(height)
     {}
   };
