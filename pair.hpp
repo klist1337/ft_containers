@@ -23,7 +23,7 @@ namespace ft
       if (this == &pa)
         return (*this);
       first = pa.first;
-      second = pa.second;
+      second = pa.second; 
       return (*this);
      }
   };
@@ -31,7 +31,7 @@ namespace ft
   template<class T1, class T2>
   bool operator==(const pair<T1, T2>& _x,const pair<T1, T2>& _y)
   {
-    return ((_x.first == _y.first) && (_x.second == _y.second))
+    return ((_x.first == _y.first) && (_x.second == _y.second));
   }
   template<class T1, class T2>
   bool operator<(const pair<T1, T2>& _x,const pair<T1, T2>& _y)

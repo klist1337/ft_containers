@@ -4,6 +4,7 @@
 #include "vector.hpp"
 #include <map>
 #include "pair.hpp"
+#include "map.hpp"
 
 void print_container(ft::vector<int>& c)
 {
@@ -144,13 +145,19 @@ int main()
   // v.insert(v.begin() + 15, 70,  "hello");
 
   ft::pair<int, std::string> P(2, "geeks");
-  std::cout << P.first;
+  //std::cout << P.first;
+  ft::map<std::string, int> m, n;
+  m.insert(ft::pair<const std::string, int>("hello", 3));
+  m.insert(ft::pair<const std::string, int>("salut", 1));
+  ft::map<std::string, int>::iterator it;
+  for (it = m.begin(); it != m.end(); it++)
+  {
+    std::cout << "first = " << it->first << " "
+    << "second = " << it->second;
+  }
   // std::cout << v.capacity() << std::endl;
   // std::cout << v.size() << std::endl;
   // print_container(v);
-
-
-
 //   std::map<std::string, CityRecord>  cityMap;
 //   cityMap["Melbourne"] = CityRecord { "Melbourne", 50000000, 2.4, 9.4};
 //   cityMap["Abidjan"] = CityRecord { "Abidjan", 50000000, 2.4, 9.4};

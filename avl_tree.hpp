@@ -24,10 +24,11 @@ namespace ft
   template<class T, class Compare, class Alloc>
   class Avltree
   {
+  public :
    typedef T value_type;
    typedef Compare key_compare;
    typedef Node<T>* nodePtr;
-   typedef typename Alloc::template rebind<Node<T>>::other allocator_type;
+   typedef typename Alloc::template rebind<Node<T> >::other allocator_type;
    typedef typename allocator_type::size_type size_type;
 
    private:
@@ -36,32 +37,52 @@ namespace ft
    allocator_type _alloc;
    key_compare _cmp;
    size_type _size;
-   
+
    public:
    Avltree(const allocator_type& alloc = allocator_type(), const key_compare& cmp = key_compare()) :
    _root(nullptr), _end(nullptr), _alloc(alloc), _cmp(cmp), _size(0)
    {
-     _alloc.allocate(1);
+     _end = _alloc.allocate(1);
      _alloc.construct(_end);
    }
    ~Avltree()
    {
     clear();
-    _alloc.deallocate(_end);
+    _alloc.deallocate(_end, 1);
     _end = nullptr;
     }
     // ft::Map member function
     allocator_type get_allocator() const { return this->_alloc;}
     //:: Capacity function
     size_type size() const { return _size;}
-    bool empty() const { return (!size) ? true : false ;}
-    size_type max_size() const { return _alloc.max_size;}
+    size_type max_size() const { return _alloc.max_size();}
     nodePtr Get_end() const {return this->_end;}
     int height(nodePtr node)
     {
       if (node == nullptr) 
         return 0;
       return node->height;
+    }
+    nodePtr successor(nodePtr& node)
+    {
+      nodePtr parent = node->parent;
+      nodePtr tmp = node;
+      if (tmp->right)
+      {
+        tmp = tmp->right;
+        while (tmp->left)
+          tmp = tmp->left;
+        return (tmp);
+      }
+      else
+      {
+        while (parent && tmp == parent->right)
+        {
+          tmp = parent;
+          parent = tmp->parent;
+        }
+        return (parent);
+      }
     }
     nodePtr Get_min(nodePtr node = nullptr) const
     {
@@ -87,7 +108,7 @@ namespace ft
       {
         if (!_cmp(node->value.first, value.first))
           return(node);
-        node = successor();
+        node = successor(node);
       }
       return(_end);
     }
@@ -98,7 +119,7 @@ namespace ft
       {
         if (_cmp(node->value.first, value.first))
           return(node);
-        node = successor();
+        node = successor(node);
       }
       return(_end);
     }
@@ -128,7 +149,7 @@ namespace ft
     }
     nodePtr find(nodePtr& node, const value_type& value)
     {
-      if (!node)
+      if (!node || node == _end)
         return (nullptr);
       if (node->value.first == value.first)
         return (node);
@@ -138,26 +159,32 @@ namespace ft
     }
     void insert(const value_type& value)
     {
-      _root = insertNode(_root, value);
+      _root = insertNode(_end, _root, value);
+      _end->left = _root;
+      _root->parent = _end;
+      _size++;
     }
     void erase(const value_type& value)
     {
       _root = eraseNode(_root, value);
+      _end->left = _root;
+      _root->parent = _end;
+      _size--;
     }
-    nodePtr insertNode(nodePtr node, const value_type& value)
+    nodePtr insertNode(nodePtr parent, nodePtr node, const value_type& value)
     {
       //find the correct position to insert the value;
       if (node == nullptr)
       {
-        _alloc.allocate(1);
-        _alloc.construct(_end, value);
-        _size++;
-        return _end;
+        node = _alloc.allocate(1);
+        _alloc.construct(node, value, 0);
+        node->parent = parent;
+        return node;
       }
       if (_cmp(node->value.first, value.first))
-        node = insertNode(node->right, value);
+        node = insertNode(node, node->right, value);
       else if (_cmp(value.first , node->value.first))
-        node = insertNode(node->left, value);
+        node = insertNode(node, node->left, value);
       node->height = 1 + std::max(height(node->right), height(node->left));
       node->balance_factor = (height(node->left) - height(node->right));
       if (node->balance_factor > 1)
@@ -180,8 +207,9 @@ namespace ft
           return(left_rotation(node));
         }
       }
+      return (node);
     }
-    nodePtr eraseNode(nodePtr node, const value_type)
+    nodePtr eraseNode(nodePtr node, const value_type& value)
     {
       if (node == nullptr)
         return (nullptr);
@@ -195,12 +223,12 @@ namespace ft
         nodePtr *l = node->left;
         if (node->right == nullptr)
         {
-          _alloc.deallocate(node);
+          _alloc.deallocate(node, 1);
           node = l;
         }
-        else if (node->left = nullptr)
+        else if (node->left == nullptr)
         {
-          _alloc.deallocate(node);
+          _alloc.deallocate(node, 1);
           node = r;
         }
         else
@@ -228,7 +256,7 @@ namespace ft
       else if (node->balance_factor < -1)
       {
         if (height(node->right) >= height(node->left))
-          return (left_rotation(node))
+          return (left_rotation(node));
         else
         {
           node->right = right_rotation(node->right);
@@ -255,10 +283,25 @@ namespace ft
       newhead->height = 1 + std::max(height(newhead->right), height(newhead->left));
       return  newhead;
     }
-    void inorder_util(nodePtr node)
+    void clear()
+    {
+      clear(_root);
+      _size = 0;
+    }
+    void clear(nodePtr &node)
+    {
+      if (node)
+      {
+        clear(node->left);
+        clear(node->right);
+        _alloc.deallocate(node, 1);
+        node = nullptr;
+      }
+    }
+    void inorder_util(nodePtr node) const
     {
       inorder_util(node->left);
-      std::cout << node->value << " ";
+      std::cout << node->value.first << " ";
       inorder_util(node->right);
     }
   };

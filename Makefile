@@ -1,4 +1,4 @@
-NAME = vector
+NAME = ft_containers
 
 CPP = c++
 
