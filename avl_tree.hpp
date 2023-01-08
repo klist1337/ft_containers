@@ -267,21 +267,37 @@ namespace ft
     }
     nodePtr right_rotation(nodePtr node)
     {
-      nodePtr newhead = node->left;
-      node->left = newhead->right;
-      newhead->right = node;
+      nodePtr left_child = node->left;
+      node->left = left_child->right;
+      if (left_child->right)
+        left_child->right->parent = left_child;
+      if (node->parent && node->parent->right == node)
+        node->parent->right = left_child;
+      else if (node->parent && node->parent->left == node)
+        node->parent->left = left_child;
+      left_child->parent = node->parent;
+      left_child->right = node;
+      node->parent = left_child;
       node->height = 1 + std::max(height(node->right), height(node->left));
-      newhead->height = 1 + std::max(height(newhead->right), height(newhead->left));
-      return newhead;
+      left_child->height = 1 + std::max(height(left_child->right), height(left_child->left));
+      return left_child;
     }
     nodePtr left_rotation(nodePtr node)
     {
-      nodePtr newhead = node->right;
-      node->right = newhead->left;
-      newhead->left = node;
+      nodePtr right_child = node->right;
+      node->right = right_child->right;
+      if (right_child->left)
+        right_child->right->parent = right_child;
+      if (node->parent && node->parent->left == node)
+        node->parent->left = right_child;
+      else if (node->parent && node->parent->right == node)
+        node->parent->right = right_child;
+      right_child->parent = node->parent;
+      right_child->left = node;
+      node->parent = right_child;
       node->height = 1 + std::max(height(node->right), height(node->left));
-      newhead->height = 1 + std::max(height(newhead->right), height(newhead->left));
-      return  newhead;
+      right_child->height = 1 + std::max(height(right_child->right), height(right_child->left));
+      return right_child;
     }
     void clear()
     {
