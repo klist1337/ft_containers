@@ -1,6 +1,8 @@
 #ifndef AVL_TREE_HPP
 #define AVL_TREE_HPP
 #include <algorithm>
+#define INSERT 1
+#define ERASE 2
 namespace ft
 {
   template <class T>
@@ -12,7 +14,7 @@ namespace ft
     Node *right;
     int   balance_factor;
     int   height;
-    Node() : parent(nullptr), left(nullptr), right(nullptr), height(1)
+    Node() : parent(nullptr), left(nullptr), right(nullptr)
     {} 
     Node(const T& value) : value(value)
     {}
@@ -100,6 +102,7 @@ namespace ft
         node = _root;
       while (node && node->right)
         node = node->right;
+      return node;
     }
     nodePtr lowerbound(const value_type& value)
     {
@@ -150,154 +153,155 @@ namespace ft
     nodePtr find(nodePtr& node, const value_type& value)
     {
       if (!node || node == _end)
-        return (nullptr);
+        return (_end);
       if (node->value.first == value.first)
         return (node);
       if (_cmp(node->value.first, value.first))
         return (find(node->right, value));
       return(find(node->left, value));
     }
-    void insert(const value_type& value)
+    void update(nodePtr node)
     {
-      _root = insertNode(_end, _root, value);
+      int LnodeHeight = -1;
+      int RnodeHeight = -1;
+
+      if (node->left)
+        LnodeHeight = node->left->height;
+      if (node->right)
+        RnodeHeight = node->right->height;
+      int diff = (LnodeHeight > RnodeHeight) ? LnodeHeight : RnodeHeight;
+      node->height = 1 + diff;
+      node->balance_factor = RnodeHeight - LnodeHeight;
+    }
+    void balance(nodePtr& node)
+    {
+      if (node->balance_factor < -1)
+      {
+        if (node->left->balance_factor <= 0)
+          right_rotation(node);
+        else
+        {
+          left_rotation(node->left);
+          right_rotation(node);
+        }
+      }
+      else if (node->balance_factor > 1)
+      {
+        if (node->right->balance_factor >= 0)
+          left_rotation(node->left);
+        else
+        {
+          right_rotation(node->right);
+          left_rotation(node);
+        }
+      }
+
+    }
+    void insert(const value_type value)
+    {
+      insertNode(_end, _root, value); 
       _end->left = _root;
       _root->parent = _end;
-      _size++;
     }
     void erase(const value_type& value)
     {
-      _root = eraseNode(_root, value);
+      eraseNode(_root, value);
       _end->left = _root;
-      _root->parent = _end;
-      _size--;
+      if (_root)
+        _root->parent = _end;
     }
-    nodePtr insertNode(nodePtr parent, nodePtr node, const value_type& value)
+  
+    void insertNode(nodePtr& parent, nodePtr& node, const value_type& value)
     {
-      //find the correct position to insert the value;
       if (node == nullptr)
       {
         node = _alloc.allocate(1);
         _alloc.construct(node, value, 0);
         node->parent = parent;
-        return node;
+        _size++;
+        return ;
       }
-      if (_cmp(node->value.first, value.first))
-        node = insertNode(node, node->right, value);
-      else if (_cmp(value.first , node->value.first))
-        node = insertNode(node, node->left, value);
-      node->height = 1 + std::max(height(node->right), height(node->left));
-      node->balance_factor = (height(node->left) - height(node->right));
-      if (node->balance_factor > 1)
-      {
-        if (_cmp(node->left->value.first, value.first))
-          return (right_rotation(node));
-        else
-        {
-          node->left = left_rotation(node->left);
-          return (right_rotation(node->right));
-        }
-      }
-      else if (node->balance_factor < -1)
-      {
-        if (_cmp(value.first, node->right->value.first))
-          return (left_rotation(node));
-        else
-        {
-          node->right = right_rotation(node->right);
-          return(left_rotation(node));
-        }
-      }
-      return (node);
+      if (_cmp(value.first, node->value.first))
+        insertNode(node, node->left, value);
+      else 
+        insertNode(node, node->right, value);
+      update(node);
+      balance(node);
     }
-    nodePtr eraseNode(nodePtr node, const value_type& value)
+    void eraseHelper(nodePtr& node, nodePtr& parent)
     {
-      if (node == nullptr)
-        return (nullptr);
+      nodePtr tmp;
+      if (node->right)
+        tmp = node->right;
+      else
+        tmp = node->left;
+      if (tmp)
+        tmp->parent = parent;
+      _alloc.deallocate(node, 1);
+      node = tmp;
+      _size--;
+    }
+    void eraseNode(nodePtr &node, const value_type& value)
+    {
+      if (!node)
+        return ;
+      if (node->value.first == value.first)
+      {
+        if (!node->left || !node->right)
+        {
+          eraseHelper(node, node->parent);
+          return ;
+        }
+        else
+        {
+          if (node->left->height > node->right->height)
+          {
+            value_type value = Get_max(node->left)->value;
+            _alloc.construct(node, value);
+            eraseNode(node->left, value);
+          }
+          else
+          {
+            value_type value = Get_min(node->right)->value;
+            _alloc.construct(node, value);
+            eraseNode(node->right, value);
+          }
+        }
+      }
       else if (_cmp(value.first, node->value.first))
         eraseNode(node->left, value);
-      else if (_cmp(node->value.first, value.first))
-        eraseNode(node->right, value);
       else
-      {
-        nodePtr *r = node->right;
-        nodePtr *l = node->left;
-        if (node->right == nullptr)
-        {
-          _alloc.deallocate(node, 1);
-          node = l;
-        }
-        else if (node->left == nullptr)
-        {
-          _alloc.deallocate(node, 1);
-          node = r;
-        }
-        else
-        {
-           while (node->left) 
-            r = r->left;
-           node->value = r->value;
-           node->right = eraseNode(node->right, node->value);
-        }
-      }
-      if (!node)
-        return node;
-      node->height = 1 + std::max(height(node->right), height(node->height));
-      node->balance_factor = height(node->left) - height(node->right);
-      if (node->balance_factor > 1)
-      {
-        if (height(node->left) >= height(node->right))
-          return (right_rotation(node));
-        else
-        {
-          node->left = left_rotation(node->left);
-          return (right_rotation(node));
-        }
-      }
-      else if (node->balance_factor < -1)
-      {
-        if (height(node->right) >= height(node->left))
-          return (left_rotation(node));
-        else
-        {
-          node->right = right_rotation(node->right);
-          return (left_rotation(node));
-        }
-      }
-      return  node;
+        eraseNode(node->right, value);
+      update(node);
+      balance(node);
     }
-    nodePtr right_rotation(nodePtr node)
+    void right_rotation(nodePtr &node)
     {
-      nodePtr left_child = node->left;
-      node->left = left_child->right;
-      if (left_child->right)
-        left_child->right->parent = left_child;
-      if (node->parent && node->parent->right == node)
-        node->parent->right = left_child;
-      else if (node->parent && node->parent->left == node)
-        node->parent->left = left_child;
-      left_child->parent = node->parent;
-      left_child->right = node;
-      node->parent = left_child;
-      node->height = 1 + std::max(height(node->right), height(node->left));
-      left_child->height = 1 + std::max(height(left_child->right), height(left_child->left));
-      return left_child;
+     nodePtr parent = node->parent;
+     nodePtr root = node->left;
+     node->left = root->right;
+     if (node->left)
+      node->left->parent = node;
+     node->parent = root;
+     root->right = node;
+     root->parent = parent;
+     node = root;
+     update(node->right);
+     update(node);
     }
-    nodePtr left_rotation(nodePtr node)
+    void  left_rotation(nodePtr &node)
     {
-      nodePtr right_child = node->right;
-      node->right = right_child->right;
-      if (right_child->left)
-        right_child->right->parent = right_child;
-      if (node->parent && node->parent->left == node)
-        node->parent->left = right_child;
-      else if (node->parent && node->parent->right == node)
-        node->parent->right = right_child;
-      right_child->parent = node->parent;
-      right_child->left = node;
-      node->parent = right_child;
-      node->height = 1 + std::max(height(node->right), height(node->left));
-      right_child->height = 1 + std::max(height(right_child->right), height(right_child->left));
-      return right_child;
+      nodePtr parent = node->parent;
+      nodePtr root = node->right;
+      node->right = root->left;
+      if (node->right)
+        node->right->parent = node;
+      node->parent = root;
+      root->left = node;
+      root->parent = parent;
+      node = root;
+      update(node->left);
+      update(node);
     }
     void clear()
     {
@@ -314,7 +318,7 @@ namespace ft
         node = nullptr;
       }
     }
-    void inorder_util(nodePtr node) const
+    void inorder_util(nodePtr &node) const
     {
       inorder_util(node->left);
       std::cout << node->value.first << " ";

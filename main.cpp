@@ -148,13 +148,35 @@ int main()
   //std::cout << P.first;
   ft::map<std::string, int> m, n;
   m.insert(ft::pair<const std::string, int>("hello", 3));
+  m.insert(ft::pair<const std::string, int>("merrci", 4));
   m.insert(ft::pair<const std::string, int>("salut", 1));
   ft::map<std::string, int>::iterator it;
+  //m.erase(ft::pair<const std::string, int>("hello", 3));
+  //m.erase(ft::pair<const std::string, int>("salut", 1));
+  std::cout << "my ft::map" << std::endl;
+  std::cout << "----------------" <<std::endl;
   for (it = m.begin(); it != m.end(); it++)
   {
-    std::cout << "first = " << it->first << " "
-    << "second = " << it->second;
+    std::cout << " first = " << it->first << " ---- "
+    << " second = " << it->second;
   }
+  // Section std::map 
+  std::cout << std::endl;
+  std::cout << std::endl;
+  std::cout << "STD::map" << std::endl;
+  std::map<std::string, int> mep, nep;
+  mep.insert(std::pair<const std::string, int>("hello", 3));
+  mep.insert(std::pair<const std::string, int>("merci", 0));
+  mep.insert(std::pair<const std::string, int>("salut", 1));
+  std::map<std::string, int>::iterator iter;
+  std::cout << "----------------" <<std::endl;
+  for (iter = mep.begin(); iter != mep.end(); iter++)
+  {
+    std::cout << " first = " << iter->first << " ---- "
+    << " second = " << iter->second;
+  }
+  std::cout << std::endl;
+  std::cout << mep.at("salut") << std::endl;
   // std::cout << v.capacity() << std::endl;
   // std::cout << v.size() << std::endl;
   // print_container(v);

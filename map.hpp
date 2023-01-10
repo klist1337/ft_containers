@@ -61,6 +61,8 @@ namespace ft
     }
     ~map() {}
     allocator_type get_allocator() const { return _tree.get_allocator();}
+    //Element access
+
     //iterator
     iterator begin() {return iterator(_tree.Get_min());}
     const_iterator begin() const { return const_iterator(_tree.Get_min());}
@@ -71,7 +73,10 @@ namespace ft
     reverse_iterator rend() { return reverse_iterator(end());}
     const_reverse_iterator rend() const { return const_reverse_iterator(end());}
     // Members operator
+    // mapped_type at(const key_type& key) 
+    // {
 
+    // }
     //Member_function
     ft::pair<iterator, bool> insert(const value_type& value)
     {
@@ -84,6 +89,17 @@ namespace ft
         node = _tree.find(value);
       }
       return (ft::make_pair(iterator(node), is_inserted));
+    }
+    size_type erase(const value_type& value)
+    {
+      size_type is_exist = 0;
+      nodePtr node = _tree.find(value);
+      if (node)
+      {
+        is_exist = 1;
+        _tree.erase(value);
+      }
+      return is_exist;
     }
   };
 }
